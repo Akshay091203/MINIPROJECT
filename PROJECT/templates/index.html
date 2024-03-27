@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Items Market Basket Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        p {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #data-loading, #data-error {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        #data-error {
+            font-weight: bold;
+            color: red;
+        }
+        canvas {
+            background-color: #333;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Grocery Item Market Basket Analysis</h1>
+        <p>This program helps you analyze relationships between items in a grocery store dataset.</p>
+
+        <form action="/analyze" method="post">
+            <label for="item_a">Enter first item:</label>
+            <select id="item_a" name="item_A" class="select-box">
+                {% for item in unique_items %}
+                    <option value="{{ item }}">{{ item }}</option>
+                {% endfor %}
+            </select>
+
+            <br>
+
+            <label for="item_b">Enter second item:</label>
+            <select id="item_b" name="item_B" class="select-box">
+                {% for item in unique_items %}
+                    <option value="{{ item }}">{{ item }}</option>
+                {% endfor %}
+            </select>
+
+            <br>
+
+            <button type="submit" class="analyze-btn">Analyze</button>
+        </form>
+
+        <p id="data-loading" class="loading"></p> 
+        <p id="data-error" class="error-message"></p>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script>
+        // JavaScript to fetch data from CSV file asynchronously
+        async function fetchData(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const data = await response.text();
+                return data.split('\n').map(row => row.trim().split(','));
+            } catch (error) {
+                throw new Error('');
+            }
+        }
+
+        // JavaScript to populate dropdown menus with unique items from data
+        async function populateDropdowns() {
+            try {
+                const data = await fetchData("D:/DAV MINI PROJECT/store_data_food.csv"); // Adjust path as needed
+                const itemA = document.getElementById("item_a");
+                const itemB = document.getElementById("item_b");
+
+                const uniqueItems = new Set(data.flat()); // Combine all items and remove duplicates
+
+                uniqueItems.forEach(item => {
+                    const optionA = document.createElement("option");
+                    optionA.value = item;
+                    optionA.text = item;
+                    itemA.appendChild(optionA);
+
+                    const optionB = document.createElement("option");
+                    optionB.value = item;
+                    optionB.text = item;
+                    itemB.appendChild(optionB);
+                });
+
+                // Hide loading message and any previous error message
+                document.getElementById("data-loading").style.display = "none";
+                document.getElementById("data-error").innerHTML = "";
+            } catch (error) {
+                console.error(error);
+                // Display error message to user
+                document.getElementById("data-error").innerHTML = error.message;
+            }
+        }
+
+        populateDropdowns();
+    </script>
+</body>
+</html>
